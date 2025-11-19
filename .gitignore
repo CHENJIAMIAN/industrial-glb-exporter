@@ -1,0 +1,111 @@
+# 依赖目录
+node_modules/
+jspm_packages/
+bower_components/
+
+# 构建输出目录
+dist/
+build/
+out/
+.next/
+.nuxt/
+dist-static/
+assets/      # 如果是生成的静态资源（根据项目配置）
+
+# 环境变量文件（敏感信息）
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.example   # 通常保留 .env.example 用于示例，但不提交实际的 .env 文件
+
+# 日志文件
+logs
+*.log
+
+# 编辑器和 IDE 配置
+# VS Code
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Vim
+*.swp
+*.swo
+.*.un~
+.session*
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+.elc
+auto-save-list/
+tramp
+.\#*
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# Windows
+Thumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.dll
+*.lnk
+
+# IDEs
+# WebStorm
+.webpack/
+.idea/
+*.iws
+*.iml
+*.ipr
+node_modules/
+
+# Visual Studio
+.vs/
+*.suo
+*.pdb
+
+# 备份文件
+*.bak
+*.tmp
+*.orig
+
+# 测试相关
+coverage/
+.nyc_output/
+
+# Storybook
+.storybook-static/
+
+# Cache
+.cache/
+.nuxt/
+.cache-loader/
+
+# TypeScript
+*.tsbuildinfo
+.next/   # Next.js 缓存和构建
+.debug
