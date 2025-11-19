@@ -1,10 +1,10 @@
 import { WebIO } from '@gltf-transform/core';
-import { 
-    prune, dedup, resample, textureCompress, draco, simplify, quantize, weld 
+import {
+    prune, dedup, resample, textureCompress, draco, simplify, quantize, weld
 } from '@gltf-transform/functions';
 import { KHRDracoMeshCompression } from '@gltf-transform/extensions';
 import { MeshoptSimplifier } from 'meshoptimizer';
-import draco3d from 'draco3d'; 
+import draco3d from 'draco3d';
 
 // 初始化 IO
 const io = new WebIO();
@@ -20,8 +20,20 @@ self.onmessage = async (e) => {
     const { buffer, config } = e.data;
 
     try {
+        console.log('[Worker] Received config:', config);
+
         // 1. 读取原始 GLB
         const document = await io.readBinary(new Uint8Array(buffer));
+
+        const root = document.getRoot();
+        const originalMeshCount = root.listMeshes().length;
+        const originalVertexCount = root.listMeshes().reduce((acc, mesh) => {
+            return acc + mesh.listPrimitives().reduce((pAcc, prim) => {
+                const pos = prim.getAttribute('POSITION');
+                return pAcc + (pos ? pos.getCount() : 0);
+            }, 0);
+        }, 0);
+        console.log(`[Worker] Original: ${originalMeshCount} meshes, ${originalVertexCount} vertices`);
 
         // 2. 构建处理链 (根据配置)
         const transforms = [];
@@ -32,21 +44,22 @@ self.onmessage = async (e) => {
         // B. 几何减面 (Simplification) - 核心步骤
         // 工业级方案使用 Meshopt Simplifier，保持拓扑结构更好
         if (config.simplifyRatio > 0) {
-            transforms.push(simplify({ 
-                simplifier: MeshoptSimplifier, 
-                ratio: config.simplifyRatio, // 0.5 = 减少50%
-                error: 0.001 // 允许的几何误差阈值
+            await MeshoptSimplifier.ready; // 必须等待初始化
+            console.log(`[Worker] Applying simplify: ratio=${config.simplifyRatio}, error=${config.simplifyError}`);
+            transforms.push(simplify({
+                simplifier: MeshoptSimplifier,
+                ratio: config.simplifyRatio,
+                error: config.simplifyError || 0.001
             }));
         }
 
         // C. 纹理重采样 (Resizing)
         if (config.maxTextureSize < 4096) {
+            console.log(`[Worker] Applying resample: maxTextureSize=${config.maxTextureSize}`);
             transforms.push(resample({ ready: true, width: config.maxTextureSize, height: config.maxTextureSize }));
         }
-        
+
         // D. 纹理转换/压缩 (转为 WebP 或只是压缩体积)
-        // 这里示例使用简单的格式转换，如果需要 KTX2 需要引入 KTX 编码器，体积较大
-        // 这里假设我们将纹理转为 WebP 以节省体积
         // transforms.push(textureCompress({ targetFormat: 'webp', quality: 80 }));
 
         // E. 清理未使用的节点、材质
@@ -55,16 +68,12 @@ self.onmessage = async (e) => {
 
         // F. 数据压缩 (Draco & Quantization)
         if (config.useDraco) {
-            // 量化：将32位浮点数转为16位或更低，大幅减少体积
-            transforms.push(quantize({
-                pattern: /^(POSITION|NORMAL|TEXCOORD|COLOR)_\d+$/
-            }));
-            
+            console.log(`[Worker] Applying Draco: bits=${JSON.stringify(config.quantizationBits)}`);
             // Draco 压缩
             transforms.push(draco({
                 method: 'edgebreaker',
                 quantizationVolume: 'high',
-                quantizationBits: {
+                quantizationBits: config.quantizationBits || {
                     POSITION: 14,
                     NORMAL: 10,
                     TEXCOORD: 12,
@@ -77,6 +86,14 @@ self.onmessage = async (e) => {
         // 3. 执行所有变换
         await document.transform(...transforms);
 
+        const finalVertexCount = root.listMeshes().reduce((acc, mesh) => {
+            return acc + mesh.listPrimitives().reduce((pAcc, prim) => {
+                const pos = prim.getAttribute('POSITION');
+                return pAcc + (pos ? pos.getCount() : 0);
+            }, 0);
+        }, 0);
+        console.log(`[Worker] Final: ${finalVertexCount} vertices`);
+
         // 4. 导出处理后的 GLB
         const outputBuffer = await io.writeBinary(document);
 
@@ -84,6 +101,7 @@ self.onmessage = async (e) => {
         self.postMessage({ buffer: outputBuffer }, [outputBuffer.buffer]);
 
     } catch (error) {
+        console.error('[Worker] Error:', error);
         self.postMessage({ error: error.message });
     }
 };

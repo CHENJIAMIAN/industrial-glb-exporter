@@ -3,23 +3,47 @@ import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 
 // 定义工业级导出参数预设
 const EXPORT_PRESETS = {
-    // 存档级：几乎无损，仅做数据去重和清理
+    // 存档级：最高画质，Draco 高精度压缩，无减面
     ARCHIVE: {
         simplifyRatio: 0,
+        simplifyError: 0,
         maxTextureSize: 4096,
-        useDraco: false
+        useDraco: true,
+        quantizationBits: {
+            POSITION: 16,
+            NORMAL: 12,
+            TEXCOORD: 14,
+            COLOR: 8,
+            GENERIC: 12
+        }
     },
-    // 标准级：平衡质量和体积，适合一般 Web 展示
+    // 标准级：平衡，中等压缩，保留 50% 面数
     STANDARD: {
-        simplifyRatio: 0.2, // 减面 20%
-        maxTextureSize: 2048,
-        useDraco: true
-    },
-    // 预览级：极致压缩，适合移动端查看
-    PREVIEW: {
-        simplifyRatio: 0.7, // 减面 70%
+        simplifyRatio: 0.5,
+        simplifyError: 0.01,
         maxTextureSize: 1024,
-        useDraco: true
+        useDraco: true,
+        quantizationBits: {
+            POSITION: 11,
+            NORMAL: 8,
+            TEXCOORD: 10,
+            COLOR: 8,
+            GENERIC: 10
+        }
+    },
+    // 预览级：极速，低精度压缩，保留 5% 面数 (强力减面)
+    PREVIEW: {
+        simplifyRatio: 0.05,
+        simplifyError: 0.2,
+        maxTextureSize: 256,
+        useDraco: true,
+        quantizationBits: {
+            POSITION: 8,
+            NORMAL: 6,
+            TEXCOORD: 8,
+            COLOR: 8,
+            GENERIC: 8
+        }
     }
 };
 
@@ -37,13 +61,13 @@ export class IndustrialExporter {
      */
     async export(object3d, filename, presetKey = 'STANDARD') {
         const config = EXPORT_PRESETS[presetKey];
-        
+
         console.time('Total Export Time');
-        
+
         // 1. 第一阶段：Three.js 序列化 (主线程)
         // 我们这里导出 binary: true，但不做 draco，把繁重工作留给 worker
         const rawBuffer = await this.serializeFromThree(object3d);
-        
+
         console.log(`原始数据大小: ${(rawBuffer.byteLength / 1024 / 1024).toFixed(2)} MB`);
 
         // 2. 第二阶段：Worker 优化 (后台线程)
