@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { IndustrialExporter } from './IndustrialExporter.js';
 
 // 初始化场景
@@ -28,18 +30,23 @@ const material = new THREE.MeshStandardMaterial({
     metalness: 0.1
 });
 
-// 生成大量球体以增加面数
-const geometry = new THREE.SphereGeometry(1, 32, 32);
-for (let i = 0; i < 500; i++) {
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(
-        (Math.random() - 0.5) * 40,
-        (Math.random() - 0.5) * 40,
-        (Math.random() - 0.5) * 40
-    );
-    mesh.scale.setScalar(Math.random() * 2 + 0.5);
-    group.add(mesh);
+// 默认场景：生成大量球体以增加面数
+function createDefaultScene() {
+    group.clear();
+    const geometry = new THREE.SphereGeometry(1, 32, 32);
+    for (let i = 0; i < 500; i++) {
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(
+            (Math.random() - 0.5) * 40,
+            (Math.random() - 0.5) * 40,
+            (Math.random() - 0.5) * 40
+        );
+        mesh.scale.setScalar(Math.random() * 2 + 0.5);
+        group.add(mesh);
+    }
 }
+createDefaultScene();
+
 scene.add(group);
 
 // 动画循环
@@ -61,6 +68,57 @@ window.addEventListener('resize', () => {
 // 导出逻辑
 const exporter = new IndustrialExporter();
 const statusEl = document.getElementById('status');
+
+// 文件上传处理
+const fileInput = document.getElementById('file-input');
+const loader = new GLTFLoader();
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('/draco/');
+loader.setDRACOLoader(dracoLoader);
+
+fileInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+    statusEl.textContent = '正在加载模型...';
+
+    loader.load(
+        url,
+        (gltf) => {
+            group.clear();
+            // 调整模型大小和位置以适应场景
+            const box = new THREE.Box3().setFromObject(gltf.scene);
+            const size = box.getSize(new THREE.Vector3());
+            const center = box.getCenter(new THREE.Vector3());
+            
+            // 将模型居中
+            gltf.scene.position.x += (gltf.scene.position.x - center.x);
+            gltf.scene.position.y += (gltf.scene.position.y - center.y);
+            gltf.scene.position.z += (gltf.scene.position.z - center.z);
+
+            // 缩放模型以适应视图 (假设视图范围大概是 50 单位)
+            const maxDim = Math.max(size.x, size.y, size.z);
+            if (maxDim > 0) {
+                const scale = 40 / maxDim;
+                gltf.scene.scale.multiplyScalar(scale);
+            }
+
+            group.add(gltf.scene);
+            statusEl.textContent = `模型加载成功: ${file.name}`;
+            URL.revokeObjectURL(url);
+        },
+        (xhr) => {
+            const percent = (xhr.loaded / xhr.total * 100).toFixed(0);
+            statusEl.textContent = `加载进度: ${percent}%`;
+        },
+        (error) => {
+            console.error(error);
+            statusEl.textContent = '模型加载失败';
+            URL.revokeObjectURL(url);
+        }
+    );
+});
 
 async function handleExport(preset) {
     const btns = document.querySelectorAll('button');
