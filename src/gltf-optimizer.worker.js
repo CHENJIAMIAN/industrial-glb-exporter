@@ -1,13 +1,38 @@
 import { WebIO } from '@gltf-transform/core';
 import {
-    prune, dedup, resample, textureCompress, draco, simplify, quantize, weld
+    prune, dedup, resample, textureCompress, draco, simplify, quantize, weld, join, palette
 } from '@gltf-transform/functions';
 import { KHRDracoMeshCompression } from '@gltf-transform/extensions';
 import { MeshoptSimplifier } from 'meshoptimizer';
 import draco3d from 'draco3d';
 
+// Polyfill for DOM environment in Worker (required for texture processing/palette)
+if (typeof self.document === 'undefined') {
+    self.document = {
+        createElement: (tagName) => {
+            if (tagName === 'canvas' && typeof OffscreenCanvas !== 'undefined') {
+                const canvas = new OffscreenCanvas(1, 1);
+                canvas.style = {}; // Mock style
+                // Polyfill toBlob for OffscreenCanvas
+                canvas.toBlob = function (callback, type, quality) {
+                    this.convertToBlob({ type, quality }).then(callback);
+                };
+                return canvas;
+            }
+            return {};
+        }
+    };
+}
+if (typeof self.window === 'undefined') {
+    self.window = self;
+}
+if (typeof self.HTMLCanvasElement === 'undefined' && typeof OffscreenCanvas !== 'undefined') {
+    self.HTMLCanvasElement = OffscreenCanvas;
+}
+
 // 初始化 IO
 const io = new WebIO();
+
 // 注册扩展
 io.registerExtensions([KHRDracoMeshCompression]);
 // 设置 Draco 依赖
@@ -40,6 +65,16 @@ self.onmessage = async (e) => {
 
         // A. 几何清理 (焊接顶点，去除孤立点，这对减面至关重要)
         transforms.push(weld({ tolerance: 0.0001 }));
+
+        // A2. 材质合并 (Palette) & 网格合并 (Join)
+        // 如果开启了 join，先运行 palette 将材质合并，这样 join 才能合并不同材质的网格
+        if (config.join) {
+            console.log('[Worker] Applying palette (merging materials)');
+            transforms.push(palette({ min: 5 })); // 合并材质
+
+            console.log('[Worker] Applying join (merging meshes)');
+            transforms.push(join());
+        }
 
         // B. 几何减面 (Simplification) - 核心步骤
         // 工业级方案使用 Meshopt Simplifier，保持拓扑结构更好

@@ -24,8 +24,8 @@ scene.add(dirLight);
 
 // 创建复杂几何体 (模拟工业模型)
 const group = new THREE.Group();
-const material = new THREE.MeshStandardMaterial({ 
-    color: 0x007bff, 
+const material = new THREE.MeshStandardMaterial({
+    color: 0x007bff,
     roughness: 0.5,
     metalness: 0.1
 });
@@ -91,7 +91,7 @@ fileInput.addEventListener('change', (event) => {
             const box = new THREE.Box3().setFromObject(gltf.scene);
             const size = box.getSize(new THREE.Vector3());
             const center = box.getCenter(new THREE.Vector3());
-            
+
             // 将模型居中
             gltf.scene.position.x += (gltf.scene.position.x - center.x);
             gltf.scene.position.y += (gltf.scene.position.y - center.y);
@@ -126,8 +126,8 @@ async function handleExport(preset) {
     statusEl.textContent = `正在导出 (${preset})... 请稍候`;
 
     try {
-        await exporter.export(scene, 'industrial-model', preset);
-        statusEl.textContent = `导出成功 (${preset})`;
+        const result = await exporter.export(scene, 'industrial-model', preset);
+        statusEl.textContent = `导出成功 (${preset}): ${result.originalSize}MB -> ${result.optimizedSize}MB`;
     } catch (err) {
         console.error(err);
         statusEl.textContent = `导出失败: ${err.message}`;

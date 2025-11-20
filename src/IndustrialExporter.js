@@ -9,6 +9,7 @@ const EXPORT_PRESETS = {
         simplifyError: 0,
         maxTextureSize: 4096,
         useDraco: true,
+        join: false,
         quantizationBits: {
             POSITION: 16,
             NORMAL: 12,
@@ -23,6 +24,7 @@ const EXPORT_PRESETS = {
         simplifyError: 0.01,
         maxTextureSize: 1024,
         useDraco: true,
+        join: false,
         quantizationBits: {
             POSITION: 11,
             NORMAL: 8,
@@ -31,12 +33,13 @@ const EXPORT_PRESETS = {
             GENERIC: 10
         }
     },
-    // 预览级：极速，低精度压缩，保留 5% 面数 (强力减面)
+    // 预览级：极速，低精度压缩，保留 5% 面数 (强力减面)，合并网格
     PREVIEW: {
         simplifyRatio: 0.05,
         simplifyError: 0.2,
         maxTextureSize: 256,
         useDraco: true,
+        join: true,
         quantizationBits: {
             POSITION: 8,
             NORMAL: 6,
@@ -78,6 +81,11 @@ export class IndustrialExporter {
 
         // 3. 下载
         this.download(optimizedBuffer, `${filename}_${presetKey}.glb`);
+
+        return {
+            originalSize: (rawBuffer.byteLength / 1024 / 1024).toFixed(2),
+            optimizedSize: (optimizedBuffer.byteLength / 1024 / 1024).toFixed(2)
+        };
     }
 
     serializeFromThree(object3d) {
