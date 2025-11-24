@@ -68,29 +68,3 @@ canvas.toBlob = function(callback, type, quality) {
     this.convertToBlob({ type, quality }).then(callback);
 };
 ```
-
-### 问题 3：`ReferenceError: io is not defined`
-**报错信息**：
-```
-Uncaught ReferenceError: io is not defined
-```
-**原因**：
-在编辑文件添加 Polyfill 的过程中，初始化 `WebIO` 实例的代码行 `const io = new WebIO();` 被意外删除了。
-
-**解决方案**：
-在 `src/gltf-optimizer.worker.js` 中恢复了该初始化代码。
-
-### 问题 4：浏览器自动化工具连接失败
-**现象**：
-Agent 内部的浏览器工具无法连接到调试端口，导致无法自动截图验证。
-
-**原因**：
-内部环境配置问题，导致无法控制无头浏览器实例。
-
-**解决方案**：
-我们修改了前端代码 (`src/main.js`)，在导出成功后的状态栏中直接显示 **“原始大小 -> 优化后大小”**。这样无需截图，用户也能直观地看到优化效果。
-
-```javascript
-// src/main.js
-statusEl.textContent = `导出成功 (${preset}): ${result.originalSize}MB -> ${result.optimizedSize}MB`;
-```
