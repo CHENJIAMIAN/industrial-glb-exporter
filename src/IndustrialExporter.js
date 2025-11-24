@@ -80,7 +80,7 @@ export class IndustrialExporter {
         console.timeEnd('Total Export Time');
 
         // 3. 下载
-        this.download(optimizedBuffer, `${filename}_${presetKey}.glb`);
+        this.download(optimizedBuffer, `${filename}.glb`);
 
         return {
             originalSize: (rawBuffer.byteLength / 1024 / 1024).toFixed(2),

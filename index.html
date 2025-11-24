@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -14,169 +13,24 @@
             background-color: #f0f2f5;
         }
 
-        #ui {
+        #app {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            width: 300px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        h2 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 20px;
-            color: #333;
-            font-weight: 600;
-        }
-
-        p {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-
-        /* Custom File Upload */
-        .upload-wrapper {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .hidden-input {
-            display: none;
-        }
-
-        .custom-file-upload {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            top: 0;
+            left: 0;
             width: 100%;
-            padding: 12px 0;
-            cursor: pointer;
-            background: linear-gradient(135deg, #6e8efb, #a777e3);
-            color: white;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(110, 142, 251, 0.3);
-            box-sizing: border-box;
+            height: 100%;
+            pointer-events: none;
         }
 
-        .custom-file-upload:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(110, 142, 251, 0.4);
-        }
-
-        .custom-file-upload i {
-            margin-right: 8px;
-            font-style: normal;
-            font-size: 16px;
-        }
-
-        #file-chosen {
-            display: block;
-            margin-top: 8px;
-            font-size: 12px;
-            color: #888;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Export Buttons */
-        button {
-            display: block;
-            width: 100%;
-            margin: 12px 0;
-            padding: 12px;
-            cursor: pointer;
-            background: white;
-            color: #333;
-            border: 1px solid #e1e1e1;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        button:hover {
-            background: #f8f9fa;
-            border-color: #d1d1d1;
-            transform: translateY(-1px);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        button:disabled {
-            background: #f5f5f5;
-            color: #aaa;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Button specific styles for hierarchy */
-        #btn-archive {
-            border-left: 4px solid #28a745;
-        }
-
-        #btn-standard {
-            border-left: 4px solid #007bff;
-        }
-
-        #btn-preview {
-            border-left: 4px solid #ffc107;
-        }
-
-        #status {
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-            font-size: 13px;
-            color: #555;
-            text-align: center;
+        /* Allow interaction with children of #app */
+        #app>* {
+            pointer-events: auto;
         }
     </style>
 </head>
 
 <body>
-    <div id="ui">
-        <h2>GLB 导出测试</h2>
-        <p>场景包含大量几何体，用于测试性能。</p>
-
-        <div class="upload-wrapper">
-            <input type="file" id="file-input" accept=".glb,.gltf" class="hidden-input">
-            <label for="file-input" class="custom-file-upload">
-                <i>📂</i> 上传自定义 GLB
-            </label>
-            <span id="file-chosen">未选择文件</span>
-        </div>
-
-        <button id="btn-archive">导出存档级 (ARCHIVE)</button>
-        <button id="btn-standard">导出标准级 (STANDARD)</button>
-        <button id="btn-preview">导出预览级 (PREVIEW)</button>
-
-        <div id="status">就绪</div>
-    </div>
-    <script>
-        const fileInput = document.getElementById('file-input');
-        const fileChosen = document.getElementById('file-chosen');
-        fileInput.addEventListener('change', function () {
-            if (this.files && this.files.length > 0) {
-                fileChosen.textContent = this.files[0].name;
-            } else {
-                fileChosen.textContent = '未选择文件';
-            }
-        });
-    </script>
+    <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
 </body>
 
