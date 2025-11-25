@@ -30,7 +30,7 @@
     - 解析后的模型被添加到 Three.js 场景中进行实时预览。
 
 3.  **导出与优化 (Main Thread -> Worker)**
-    - 用户点击导出按钮（如“标准级”），触发 `IndustrialExporter.export()`。
+    - 用户点击导出按钮（如“标准级”），触发 `GlbExporter.export()`。
     - **序列化**：首先在主线程使用 `GLTFExporter` 将当前的 Three.js 场景对象序列化为标准的二进制 GLB 数据 (ArrayBuffer)。
     - **数据转移**：将此 ArrayBuffer 和优化配置（如压缩等级、减面比例）通过 `postMessage` 发送给 Web Worker。使用 `Transferable Objects` 技术零拷贝转移数据所有权，避免内存复制。
 
@@ -145,7 +145,7 @@ pnpm dev
 ```
 ├── src/
 │   ├── main.js                 # 主程序入口，UI 与 Three.js 场景逻辑
-│   ├── IndustrialExporter.js   # 导出管理器，协调 Worker
+│   ├── GlbExporter.js   # 导出管理器，协调 Worker
 │   └── gltf-optimizer.worker.js # 核心优化逻辑（运行在 Worker 中）
 ├── public/                     # 静态资源（如 Draco 解码器）
 ├── index.html                  # 页面入口

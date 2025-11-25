@@ -50,7 +50,7 @@ const EXPORT_PRESETS = {
     }
 };
 
-export class IndustrialExporter {
+export class GlbExporter {
     constructor() {
         this.worker = new Worker(new URL('./gltf-optimizer.worker.js', import.meta.url), { type: 'module' });
         this.exporter = new GLTFExporter();

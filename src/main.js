@@ -7,7 +7,7 @@ import App from './App.vue';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
-import { IndustrialExporter } from './IndustrialExporter.js';
+import { GlbExporter } from './GlbExporter.js';
 
 // --- Three.js Scene Setup ---
 const scene = new THREE.Scene();
@@ -71,7 +71,7 @@ window.addEventListener('resize', () => {
 });
 
 // --- Service Logic ---
-const exporter = new IndustrialExporter();
+const exporter = new GlbExporter();
 const loader = new GLTFLoader();
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath('/draco/');
