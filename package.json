@@ -1,6 +1,19 @@
 {
   "name": "industrial-glb-exporter",
   "version": "1.0.0",
+  "description": "基于 Web 的工业级 GLB 模型导出与优化工具，支持 Draco 压缩与多级精度。",
+  "author": "CHENJIAMIAN",
+  "license": "MIT",
+  "keywords": [
+    "threejs",
+    "glb",
+    "gltf",
+    "exporter",
+    "draco",
+    "optimization",
+    "webgl",
+    "3d"
+  ],
   "type": "module",
   "scripts": {
     "dev": "vite",
