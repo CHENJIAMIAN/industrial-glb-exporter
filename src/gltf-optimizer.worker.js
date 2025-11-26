@@ -37,8 +37,8 @@ const io = new WebIO();
 io.registerExtensions([KHRDracoMeshCompression]);
 // 设置 Draco 依赖
 io.registerDependencies({
-    'draco3d.decoder': await draco3d.createDecoderModule({ wasmBinary: await fetch('/draco/draco_decoder.wasm').then(res => res.arrayBuffer()) }),
-    'draco3d.encoder': await draco3d.createEncoderModule({ wasmBinary: await fetch('/draco/draco_encoder.wasm').then(res => res.arrayBuffer()) }),
+    'draco3d.decoder': await draco3d.createDecoderModule({ wasmBinary: await fetch(`${import.meta.env.BASE_URL}draco/draco_decoder.wasm`).then(res => res.arrayBuffer()) }),
+    'draco3d.encoder': await draco3d.createEncoderModule({ wasmBinary: await fetch(`${import.meta.env.BASE_URL}draco/draco_encoder.wasm`).then(res => res.arrayBuffer()) }),
 });
 
 self.onmessage = async (e) => {

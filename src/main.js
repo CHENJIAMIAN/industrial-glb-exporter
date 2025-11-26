@@ -74,7 +74,7 @@ window.addEventListener('resize', () => {
 const exporter = new GlbExporter();
 const loader = new GLTFLoader();
 const dracoLoader = new DRACOLoader();
-dracoLoader.setDecoderPath('/draco/');
+dracoLoader.setDecoderPath(`${import.meta.env.BASE_URL}draco/`);
 loader.setDRACOLoader(dracoLoader);
 
 const threeService = {
