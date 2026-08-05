@@ -1,3 +1,11 @@
+[English](./README.en.md)
+
+<!-- codex-github-rules:bilingual-summary -->
+> **中文简介**：基于 Web 的工业级 GLB 模型导出与优化工具
+>
+> **English summary**: A web-based industrial-grade GLB model export and optimization tool
+
+---
 # Industrial GLB Exporter
 
 这是一个基于 Web 的工业级 GLB 模型导出与优化工具。它允许用户加载 GLB/GLTF 模型，并根据不同的应用场景（存档、标准展示、预览）选择不同的精度进行导出。
