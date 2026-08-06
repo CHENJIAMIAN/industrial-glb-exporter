@@ -1,5 +1,7 @@
 # GLB 导出优化 - 开发与故障排查日志
 
+> [English](TROUBLESHOOTING.en.md)
+
 本文档记录了在实现 GLB 导出优化（特别是针对 "Preview" 预览模式）过程中遇到的技术挑战及其解决方案。
 
 ## 1. 优化策略演变
